@@ -3,6 +3,7 @@
 .idea/
 .vscode/
 *.log
+.env
 
 ### Backend (Spring Boot / Maven) ###
 target/

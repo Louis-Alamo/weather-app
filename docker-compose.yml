@@ -62,6 +62,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: weather_password
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      WEATHER_API_URL: ${WEATHER_API_URL}
     networks:
       - weather-net
 
