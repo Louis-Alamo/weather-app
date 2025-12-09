@@ -5,7 +5,7 @@ import com.weatherapp.weather_backend.interfaces.WeatherProvide;
 import org.springframework.cache.annotation.Cacheable;
 
 import com.weatherapp.weather_backend.config.WeatherProperties;
-import com.weatherapp.weather_backend.dto.WeatherResponseDTO;
+import com.weatherapp.weather_backend.dto.WeatherDTO;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -27,7 +27,7 @@ public class WeatherApiServices implements WeatherProvide {
     @Override
     @Cacheable(value = "weather_cache", key = "#city")
     @SuppressWarnings("null")
-    public Optional<WeatherResponseDTO> getWeather(String city) {
+    public Optional<WeatherDTO> getWeather(String city) {
 
         String url = String.format("%s?key=%s&q=%s",
 
@@ -37,6 +37,6 @@ public class WeatherApiServices implements WeatherProvide {
 
         System.out.println("Se realizo una llamada a la api: " + url);
 
-        return Optional.ofNullable(restTemplate.getForObject(url, WeatherResponseDTO.class));
+        return Optional.ofNullable(restTemplate.getForObject(url, WeatherDTO.class));
     }
 }

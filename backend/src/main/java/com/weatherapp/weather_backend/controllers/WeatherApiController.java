@@ -1,14 +1,14 @@
 package com.weatherapp.weather_backend.controllers;
 
-import java.util.Optional;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.weatherapp.weather_backend.dto.WeatherResponseDTO;
+import com.weatherapp.weather_backend.dto.WeatherDTO;
+import com.weatherapp.weather_backend.dto.responsesdto.ApiResponse;
+import com.weatherapp.weather_backend.exceptions.CityNotFound;
 import com.weatherapp.weather_backend.services.WeatherApiServices;
 
 @RestController
@@ -22,15 +22,11 @@ public class WeatherApiController {
     }
 
     @GetMapping("/{city}")
-    public ResponseEntity<WeatherResponseDTO> getWeather(@PathVariable String city) {
+    public ResponseEntity<ApiResponse<WeatherDTO>> getWeather(@PathVariable String city) {
 
-        Optional<WeatherResponseDTO> weatherResponseDTO = weatherApiServices.getWeather(city);
+        return weatherApiServices.getWeather(city)
+                .map(weatherDTO -> ResponseEntity.ok(ApiResponse.success(weatherDTO, "Weather data")))
+                .orElseThrow(() -> new CityNotFound("City not found"));
 
-        if (weatherResponseDTO.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(weatherResponseDTO.get());
     }
-
 }
