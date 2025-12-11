@@ -29,7 +29,7 @@ public class WeatherApiServices implements WeatherProvide {
     @SuppressWarnings("null")
     public Optional<WeatherDTO> getWeather(String city) {
 
-        String url = String.format("%s?key=%s&q=%s",
+        String url = String.format("%s?key=%s&q=%s&days=7",
 
                 Objects.requireNonNull(weatherProperties.getUrl(), "Url is required"),
                 Objects.requireNonNull(weatherProperties.getKey(), "Key is required"),
