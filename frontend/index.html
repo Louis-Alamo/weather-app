@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - ElPanadero Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        img {
+            @apply object-cover;
+        }
+
+        /* Animación del spinner */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-enter {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+
+        .toast-exit {
+            animation: slideOutRight 0.3s ease-in forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <!-- Spinner de carga -->
+    <div id="loadingSpinner" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm items-center justify-center z-50">
+        <div class="bg-gray-800 rounded-2xl p-8 flex flex-col items-center gap-4 shadow-2xl">
+            <div class="spinner border-4 border-gray-600 border-t-blue-500 rounded-full w-16 h-16"></div>
+            <p class="text-gray-300 font-medium">Buscando clima...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <div
+        class="w-full max-w-6xl bg-gray-800 rounded-[2rem] shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-4 h-auto md:h-[85vh]">
+
+        <div
+            class="col-span-1 bg-gray-700/50 p-6 flex flex-col items-center justify-between border-r border-gray-600/50">
+
+            <div class="w-full flex gap-2 mb-6">
+                <div class="relative w-full">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">🔍</span>
+                    <input type="text" id="cityInput" placeholder="Buscar ciudad..."
+                        class="w-full py-2 pl-10 pr-4 bg-gray-600 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition">
+                </div>
+                <button id="getLocation" class="bg-gray-600 p-2 rounded-xl hover:bg-gray-500 transition text-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4s-1.79-4-4-4m8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7s7 3.13 7 7s-3.13 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <div
+                class="w-full aspect-square bg-gray-600 rounded-2xl overflow-hidden mb-4 shadow-lg flex items-center justify-center">
+                <img id="mainWeatherIcon" src="./resources/img/Furina.jpeg" alt="Ícono del clima"
+                    class="w-full h-full object-cover">
+            </div>
+
+            <div class="text-center space-y-2">
+                <h1 id="temp" class="text-6xl font-bold text-white">--°C</h1>
+                <div class="flex justify-center gap-2 text-gray-400 text-sm">
+                    <span id="day">--</span>, <span id="hour">--:--</span>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-600 w-full my-6"></div>
+
+            <div class="w-full space-y-4">
+                <div class="flex items-center gap-3 text-lg">
+                    <svg id="weatherIconSvg" class="text-gray-300" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M19.36 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5c0-2.64-2.05-4.78-4.64-4.96" />
+                    </svg>
+                    <span id="condition" class="capitalize">--</span>
+                </div>
+
+                <div class="flex items-center gap-3 text-lg text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5a2.5 2.5 0 0 1 0-5a2.5 2.5 0 0 1 0 5" />
+                    </svg>
+                    <div class="relative w-full h-16 rounded-lg overflow-hidden group">
+                        <img src="./resources/img/furina-fondo-alv.jpg"
+                            class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-80 transition">
+                        <span id="cityNameDisplay"
+                            class="absolute inset-0 flex items-center justify-center font-bold text-white drop-shadow-md text-sm text-center px-2 leading-tight"
+                            data-i18n="city">Ciudad</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-1 md:col-span-3 bg-gray-800 p-8 flex flex-col gap-6">
+
+            <div class="flex justify-end items-center">
+                <div class="flex gap-4 items-center">
+                    <div class="flex bg-gray-700 rounded-full p-1">
+                        <button
+                            class="bg-white text-black rounded-full w-8 h-8 font-bold text-xs transition">°C</button>
+                        <button
+                            class="text-white hover:bg-gray-600 rounded-full w-8 h-8 font-bold text-xs transition">°F</button>
+                    </div>
+
+                    <!-- Selector de idioma -->
+                    <div class="relative">
+                        <button id="langButton"
+                            class="bg-gray-700 hover:bg-gray-600 rounded-xl px-4 py-2 font-bold text-sm text-white transition flex items-center gap-2">
+                            <span id="currentLang">ES</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                class="transition-transform" id="langArrow">
+                                <path fill="currentColor" d="M7 10l5 5 5-5z" />
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <div id="langDropdown"
+                            class="hidden absolute right-0 mt-2 w-32 bg-gray-700 rounded-xl shadow-2xl overflow-hidden z-50 border border-gray-600">
+                            <button
+                                class="lang-option w-full px-4 py-3 text-left text-white hover:bg-gray-600 transition font-medium"
+                                data-lang="es">
+                                🇪🇸 ES
+                            </button>
+                            <button
+                                class="lang-option w-full px-4 py-3 text-left text-white hover:bg-gray-600 transition font-medium"
+                                data-lang="en">
+                                🇬🇧 EN
+                            </button>
+                            <button
+                                class="lang-option w-full px-4 py-3 text-left text-white hover:bg-gray-600 transition font-medium"
+                                data-lang="fr">
+                                🇫🇷 FR
+                            </button>
+                            <button
+                                class="lang-option w-full px-4 py-3 text-left text-white hover:bg-gray-600 transition font-medium"
+                                data-lang="de">
+                                🇩🇪 DE
+                            </button>
+                            <button
+                                class="lang-option w-full px-4 py-3 text-left text-white hover:bg-gray-600 transition font-medium"
+                                data-lang="pt">
+                                🇵🇹 PT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="forecastContainer" class="grid grid-cols-3 md:grid-cols-7 gap-4">
+                <!-- Las tarjetas del forecast se generarán dinámicamente aquí -->
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold mb-4" data-i18n="todayHighlights">Aspectos destacados de hoy</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                    <div class="bg-gray-700/30 p-6 rounded-3xl space-y-4">
+                        <span class="text-gray-400 block text-sm" data-i18n="uvIndex">Índice UV</span>
+                        <div class="text-3xl font-bold text-white flex items-end gap-2">
+                            <span id="uvIndex">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-700/30 p-6 rounded-3xl space-y-4">
+                        <span class="text-gray-400 block text-sm" data-i18n="windStatus">Estado del viento</span>
+                        <div class="text-3xl font-bold text-white"><span id="windSpeed">--</span> <span id="windUnit"
+                                class="text-sm text-gray-400 font-normal">km/h</span></div>
+                    </div>
+                    <div class="bg-gray-700/30 p-6 rounded-3xl space-y-4">
+                        <span class="text-gray-400 block text-sm" data-i18n="humidity">Humedad</span>
+                        <div class="text-3xl font-bold text-white"><span id="humidity">--</span> <span
+                                class="text-sm text-gray-400 font-normal">%</span></div>
+
+                        <div class="w-full bg-gray-600 rounded-full h-2.5">
+                            <div id="humidityBar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-700/30 p-6 rounded-3xl space-y-4">
+                        <span class="text-gray-400 block text-sm" data-i18n="feelsLike">Sensación térmica</span>
+                        <div class="text-3xl font-bold text-white"><span id="feelsLike">--</span> <span
+                                id="feelsLikeUnit" class="text-sm text-gray-400 font-normal">°C</span></div>
+                    </div>
+                    <div class="bg-gray-700/30 p-6 rounded-3xl space-y-4">
+                        <span class="text-gray-400 block text-sm" data-i18n="visibility">Visibilidad</span>
+                        <div class="text-3xl font-bold text-white"><span id="visibility">--</span> <span
+                                id="visibilityUnit" class="text-sm text-gray-400 font-normal">km</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
