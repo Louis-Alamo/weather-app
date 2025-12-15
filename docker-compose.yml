@@ -1,65 +1,24 @@
 version: '3.8'
 
 services:
-  # -----------------------------------------------------------------
-  # 🗄️ SERVICIO DE BASE DE DATOS (MySQL)
-  # Persistencia para usuarios, historial y favoritos.
-  # -----------------------------------------------------------------
-  mysqldb:
-    image: mysql:8.0
-    container_name: weather_mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword # ⚠️ En prod esto va en .env
-      MYSQL_DATABASE: weather_db
-      MYSQL_USER: weather_user
-      MYSQL_PASSWORD: weather_password
-    ports:
-      - "3306:3306" # Expuesto para que te conectes con DBeaver/Workbench
-    volumes:
-      - ./mysql-data:/var/lib/mysql # ¡Vital! Si borras el contenedor, los datos sobreviven aquí.
-    networks:
-      - weather-net
-    healthcheck:
-      # Nivel Pro: Verifica que la DB esté viva antes de que el back intente conectar
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
-
-  # -----------------------------------------------------------------
-  # ⚡ SERVICIO DE CACHÉ (Redis)
-  # Velocidad pura para no gastar API externa.
-  # -----------------------------------------------------------------
   redis:
     image: redis:alpine
     container_name: weather_redis
     restart: always
     ports:
-      - "6379:6379" # Expuesto para monitorear (opcional)
+      - "6379:6379"
     networks:
       - weather-net
 
-  # -----------------------------------------------------------------
-  # ☕ SERVICIO DE BACKEND (Spring Boot)
-  # El cerebro de la operación.
-  # NOTA: Esto fallará si intentas levantarlo AHORA porque no hemos
-  # creado el Dockerfile en la carpeta /backend.
-  # -----------------------------------------------------------------
   api:
-    build: ./backend # Busca el Dockerfile en esta carpeta
+    build: ./backend
     container_name: weather_api
     ports:
       - "8080:8080"
     depends_on:
-      mysqldb:
-        condition: service_healthy # Espera a que MySQL esté listo de verdad
       redis:
         condition: service_started
     environment:
-      # Le decimos a Spring dónde están sus amigos (usando los nombres de servicio)
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/weather_db?useSSL=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: weather_user
-      SPRING_DATASOURCE_PASSWORD: weather_password
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       WEATHER_API_KEY: ${WEATHER_API_KEY}
@@ -67,10 +26,14 @@ services:
     networks:
       - weather-net
 
-# -----------------------------------------------------------------
-# 🌐 REDES (Networking)
-# Una red privada para que los contenedores se hablen por nombre.
-# -----------------------------------------------------------------
+  frontend:
+    build: ./frontend
+    container_name: weather_frontend
+    ports:
+      - "80:80"
+    networks:
+      - weather-net
+
 networks:
   weather-net:
     driver: bridge
