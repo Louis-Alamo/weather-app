@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8080/api/v1/weather';
+const API_URL = 'https://weather-app-backend-s7q1.onrender.com/api/v1/weather';
 const currentDays = 7;
 let currentLang = 'es';
 let currentSystem = 'metric';
