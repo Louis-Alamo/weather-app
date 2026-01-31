@@ -326,53 +326,7 @@ redis-cli
 > GET "weather_cache::London_7_en_metric"
 ```
 
-## 🐛 Troubleshooting
 
-### Common Issues
-
-**Backend won't start:**
-- Check if Redis is running: `redis-cli ping` (should return `PONG`)
-- Verify Java version: `java -version` (must be 17+)
-- Check if port 8080 is available
-
-**API returns 404:**
-- Verify WeatherAPI key is correct
-- Check internet connection
-- Review logs: `tail -f backend/logs/application.log`
-
-**Frontend CORS errors:**
-- Ensure backend is running on port 8080
-- Check browser console for specific error
-- Verify CORS configuration in `CorsConfig.java`
-
-**Cache not working:**
-- Check Redis connection
-- Verify cache configuration in `RedisConfig.java`
-- Check TTL: cache expires after 60 minutes
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-### Code Style
-
-- **Backend**: Follow standard Java conventions
-- **Frontend**: Use ES6+ features, maintain consistent formatting
-- **Commits**: Use conventional commit messages
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Your Name** - [GitHub Profile](https://github.com/yourusername)
 
 ## 🙏 Acknowledgments
 
@@ -380,9 +334,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Tailwind CSS](https://tailwindcss.com/) for the styling framework
 - [Spring Boot](https://spring.io/projects/spring-boot) for the backend framework
 - [Redis](https://redis.io/) for caching solution
-
----
-
-⭐ If you found this project helpful, please give it a star!
-
-📧 Questions? Open an issue or contact [your.email@example.com](mailto:your.email@example.com)
